@@ -1,6 +1,6 @@
-module github.com/dolthub/maphash
+module github.com/Snawoot/maphash
 
-go 1.18
+go 1.22.0
 
 require github.com/stretchr/testify v1.8.1
 
