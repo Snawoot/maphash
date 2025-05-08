@@ -174,14 +174,14 @@ func FuzzStringPairHasher(f *testing.F) {
 }
 
 func testHasher[K comparable](t *testing.T, key K) {
-	h1, h2 := NewHasher[K](), NewHasher[K]()
+	h1, h2 := NewHasher[K](RandomSeed()), NewHasher[K](RandomSeed())
 	assert.Equal(t, h1.Hash(key), h1.Hash(key))
 	assert.Equal(t, h2.Hash(key), h2.Hash(key))
 	assert.NotEqual(t, h1.Hash(key), h2.Hash(key))
 	assert.Equal(t, h1.Hash2(key), h1.Hash2(key))
 	assert.Equal(t, h2.Hash2(key), h2.Hash2(key))
 	assert.NotEqual(t, h1.Hash2(key), h2.Hash2(key))
-	h3, h4 := NewSeed[K](h1), NewSeed[K](h2)
+	h3, h4 := h1.WithSeed(RandomSeed()), h2.WithSeed(RandomSeed())
 	assert.Equal(t, h3.Hash(key), h3.Hash(key))
 	assert.Equal(t, h4.Hash(key), h4.Hash(key))
 	assert.NotEqual(t, h1.Hash(key), h3.Hash(key))
@@ -197,41 +197,41 @@ func testHasher[K comparable](t *testing.T, key K) {
 func TestRefAllocs(t *testing.T) {
 	t.Run("*int", func(t *testing.T) {
 		x := int(42)
-		testNoAllocs(t, NewHasher[*int](), &x)
+		testNoAllocs(t, NewHasher[*int](RandomSeed()), &x)
 	})
 	t.Run("*uint", func(t *testing.T) {
 		x := uint(42)
-		testNoAllocs(t, NewHasher[*uint](), &x)
+		testNoAllocs(t, NewHasher[*uint](RandomSeed()), &x)
 	})
 	t.Run("*float", func(t *testing.T) {
 		x := float64(math.E)
-		testNoAllocs(t, NewHasher[*float64](), &x)
+		testNoAllocs(t, NewHasher[*float64](RandomSeed()), &x)
 	})
 	t.Run("*string", func(t *testing.T) {
 		x := string("asdf")
-		testNoAllocs(t, NewHasher[*string](), &x)
+		testNoAllocs(t, NewHasher[*string](RandomSeed()), &x)
 	})
 }
 
 func TestNoValueAllocs(t *testing.T) {
 	t.Run("int", func(t *testing.T) {
-		testNoAllocs(t, NewHasher[int](), 42)
+		testNoAllocs(t, NewHasher[int](RandomSeed()), 42)
 	})
 	t.Run("uint", func(t *testing.T) {
-		testNoAllocs(t, NewHasher[uint](), 42)
+		testNoAllocs(t, NewHasher[uint](RandomSeed()), 42)
 	})
 	t.Run("float", func(t *testing.T) {
-		testNoAllocs(t, NewHasher[float64](), math.E)
+		testNoAllocs(t, NewHasher[float64](RandomSeed()), math.E)
 	})
 	t.Run("string", func(t *testing.T) {
-		testNoAllocs(t, NewHasher[string](), "asdf")
+		testNoAllocs(t, NewHasher[string](RandomSeed()), "asdf")
 	})
 	type uuid [16]byte
 	t.Run("uuid", func(t *testing.T) {
-		testNoAllocs(t, NewHasher[uuid](), uuid{})
+		testNoAllocs(t, NewHasher[uuid](RandomSeed()), uuid{})
 	})
 	t.Run("time", func(t *testing.T) {
-		testNoAllocs(t, NewHasher[time.Time](), time.Now())
+		testNoAllocs(t, NewHasher[time.Time](RandomSeed()), time.Now())
 	})
 }
 

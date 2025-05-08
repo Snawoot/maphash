@@ -16,6 +16,10 @@ package maphash
 
 import "unsafe"
 
+type Seed struct {
+	s uintptr
+}
+
 // Hasher hashes values of type K.
 // Uses runtime AES-based hashing.
 type Hasher[K comparable] struct {
@@ -24,19 +28,21 @@ type Hasher[K comparable] struct {
 }
 
 // NewHasher creates a new Hasher[K] with a random seed.
-func NewHasher[K comparable]() Hasher[K] {
+func NewHasher[K comparable](seed Seed) Hasher[K] {
 	return Hasher[K]{
 		hash: getRuntimeHasher[K](),
-		seed: newHashSeed(),
+		seed: seed.s,
 	}
 }
 
-// NewSeed returns a copy of |h| with a new hash seed.
-func NewSeed[K comparable](h Hasher[K]) Hasher[K] {
-	return Hasher[K]{
-		hash: h.hash,
-		seed: newHashSeed(),
-	}
+// NewSeed returns new seed from uintptr value
+func NewSeed(s uintptr) Seed {
+	return Seed{s}
+}
+
+// RandomSeed returns new random seed
+func RandomSeed() Seed {
+	return Seed{newHashSeed()}
 }
 
 // Hash hashes |key|.
@@ -50,4 +56,12 @@ func (h Hasher[K]) Hash2(key K) uintptr {
 	// |p| does not escape the stack.
 	p := noescape(unsafe.Pointer(&key))
 	return h.hash(p, h.seed)
+}
+
+// WithSeed returns copy of hasher with another seed
+func (h Hasher[K]) WithSeed(seed Seed) Hasher[K] {
+	return Hasher[K]{
+		hash: h.hash,
+		seed: seed.s,
+	}
 }

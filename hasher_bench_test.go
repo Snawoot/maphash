@@ -24,7 +24,7 @@ import (
 )
 
 func BenchmarkUint64Hasher(b *testing.B) {
-	h := NewHasher[uint64]()
+	h := NewHasher[uint64](RandomSeed())
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		h.Hash(uint64(i))
@@ -33,7 +33,7 @@ func BenchmarkUint64Hasher(b *testing.B) {
 }
 
 func BenchmarkCompareStringHasher(b *testing.B) {
-	h := NewHasher[string]()
+	h := NewHasher[string](RandomSeed())
 	seed := gohash.MakeSeed()
 	const cnt uint64 = 4096
 	const mod uint64 = 4096 - 1
@@ -58,7 +58,7 @@ func BenchmarkStringPairHasher(b *testing.B) {
 	type pair struct {
 		a, b string
 	}
-	h := NewHasher[pair]()
+	h := NewHasher[pair](RandomSeed())
 	const cnt uint64 = 4096
 	const mod uint64 = 4096 - 1
 	dataA := genStringData(cnt, 16)
